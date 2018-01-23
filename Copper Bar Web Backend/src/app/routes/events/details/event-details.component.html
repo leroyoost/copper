@@ -1,0 +1,180 @@
+<div>
+    <div class="row">
+        <div class="col-sm-9 col-xs-7">
+            <h3 style="margin-top:0px;" *ngIf="event">{{event.name}} | {{event.start_time | date: "d MMM y"}}</h3>
+        </div>
+    </div>
+    <tabset justified="true">
+        <tab>
+            <ng-template tabHeading>
+                <em class="fa fa-list fa-fw"></em>Guestlist
+            </ng-template>
+            <div>
+                <div class="row">
+                    <div class="col-sm-9 col-xs-7"></div>
+                    <div class="col-sm-3 col-xs-5">
+                        <button type="button" class="btn btn-primary btn-block align-middle" (click)="addGuestModal()"><i class="fa fa-plus"></i>  Add Guest</button>
+                    </div>
+                </div>
+                <input type="text" [(ngModel)]="filter" placeholder="name">
+                <div class="table-responsive" *ngIf="guestlist">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th (click)="sort('name')">Name</th>
+                                <th (click)="sort('surname')">Surname</th>
+                                <th (click)="sort('email')">Email</th>
+                                <th (click)="sort('class')">Ticket</th>
+                                <th (click)="sort('valid')">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let guest of guestlist | async | orderBy: key : reverse | filterBy: filter; let i = index">
+                                <td>{{guest.name}}</td>
+                                <td>{{guest.surname}}</td>
+                                <td>{{guest.email}}</td>
+                                <td>{{guest.class}}</td>
+                                <td>{{guest.valid}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </tab>
+        <tab>
+            <ng-template tabHeading>
+                <em class="fa fa-list fa-fw"></em>Dashboard
+            </ng-template>
+            <div>
+            </div>
+        </tab>
+        <tab>
+            <ng-template tabHeading>
+                <em class="fa fa-cog fa-fw"></em>Event Settings
+            </ng-template>
+            <div>
+                <div>
+                    <fieldset *ngIf="event">
+                        <div class="form-group">
+                            <label style="margin-top:8px" class="col-sm-3 control-label">Event Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" [(ngModel)]="event.name">
+                            </div>
+                            <div class="col-sm-3"></div>
+                            <br/>
+                            <br/>
+                        </div>
+                        <div class="form-group">
+                            <label style="margin-top:8px" class="col-sm-3 control-label">Description</label>
+                            <div class="col-sm-6">
+                                <textarea placeholder="Add the event description here" rows="4" type="text" [(ngModel)]="event.description" class="form-control"></textarea>
+                            </div>
+                            <div class="col-sm-3"></div>
+                            <br/>
+                            <br/>
+                        </div>
+                    </fieldset>
+                    <fieldset *ngIf="event && event.ticketTypes">
+                        <div *ngFor="let ticket of event.ticketTypes; let i = index">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-danger pull-left" (click)="removeTicketClass(i)"><i class="fa fa-trash-o"></i> Delete Ticket Class</button>
+                                </div>
+                                <br/>
+                                <br/>
+                            </div>
+                            <div class="form-group">
+                                <label style="margin-top:8px" class="col-sm-3 control-label">Ticket Type</label>
+                                <div class="col-sm-2">
+                                    <select [(ngModel)]="ticket.class" class="form-control" (change)="classChanged(ticket)">
+                                        <option  *ngFor="let type of eventService.tickets.types" [ngValue]="type">{{type}}</option>
+                                    </select>
+                                </div>
+                                <label style="margin-top:8px" class="col-sm-1 control-label">Price</label>
+                                <div class="col-sm-2">
+                                    <input type="text" placeholder="R 0.00" class="form-control" [(ngModel)]="ticket.price">
+                                </div>
+                                <label style="margin-top:8px" class="col-sm-1 control-label">Quantity</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" [(ngModel)]="ticket.quantity">
+                                </div>
+                                <br/>
+                                <br/>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-top:8px" class="col-sm-3 control-label">Sales Open</label>
+                                <div class="p0 col-sm-1">
+                                    <button class="btn btn-primary pull-right" (click)="increment(i,-1,'start_count')"><em class="fa fa-minus"></em></button>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" class="form-control text-center p0" [(ngModel)]="ticket.calc.start_count">
+                                </div>
+                                <div class="p0 col-sm-1">
+                                    <button class="btn btn-primary" (click)="increment(i,1,'start_count')"><em class="fa fa-plus"></em></button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <select [(ngModel)]="ticket.calc.start_unit" class="form-control">
+                                    <option  *ngFor="let unit of eventService.tickets.units" [ngValue]="unit.value">{{unit.name}}</option>
+                                </select>
+                                </div>
+                                <label style="margin-top:8px" class="col-sm-1 control-label">Before</label>
+                                <div class="col-sm-2">
+                                    <select [(ngModel)]="ticket.calc.start_marker" class="form-control">
+                                        <option *ngFor="let marker of eventService.tickets.markers" [ngValue]="marker" >{{marker}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <br/>
+                                <br/>
+                            </div>
+                            <div class="form-group">
+                                <label style="margin-top:8px" class="col-sm-3 control-label">Sales Close</label>
+                                <div class="p0 col-sm-1">
+                                    <button class="btn btn-primary pull-right" (click)="increment(i,-1,'end_count')"><em class="fa fa-minus"></em></button>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="text" class="form-control text-center p0" [(ngModel)]="ticket.calc.end_count">
+                                </div>
+                                <div class="p0 col-sm-1">
+                                    <button class="btn btn-primary" (click)="increment(i,1,'end_count')"><em class="fa fa-plus"></em></button>
+                                </div>
+                                <div class="col-sm-2">
+                                    <select [(ngModel)]="ticket.calc.end_unit" class="form-control">
+                                    <option  *ngFor="let unit of eventService.tickets.units" [ngValue]="unit.value">{{unit.name}}</option>
+                                </select>
+                                </div>
+                                <label style="margin-top:8px" class="col-sm-1 control-label">Before</label>
+                                <div class="col-sm-2">
+                                    <select [(ngModel)]="ticket.calc.end_marker" class="form-control">
+                                    <option *ngFor="let marker of eventService.tickets.markers" [ngValue]="marker" >{{marker}}</option>
+                                </select>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <br/>
+                                <br/>
+                            </div>
+                            <hr/>
+                        </div>
+                    </fieldset>
+                    <div class="row" *ngIf="event">
+                        <div class="col-sm-9"></div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-primary btn-block align-middle" (click)="addTicketClass()"><i class="fa fa-plus"></i>  Add Ticket Class</button>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="row">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-4"><button [disabled]="!event || !event.ticketTypes" (click)="createEvent()" class="button btn btn-block btn-success">Publish Event</button>
+                        </div>
+                        <div class="col-sm-4"><a (click)="bsModalRef.hide()" class="button btn btn-block btn-danger">Cancel</a>
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabset>
+</div>

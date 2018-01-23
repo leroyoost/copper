@@ -1,0 +1,19 @@
+{
+    "header": {
+        "search": {
+            "PLACEHOLDER": "Escribe y presiona enter.."
+        }
+    },
+    "sidebar": {
+        "WELCOME": "Bienvenido",
+        "heading": {
+            "HEADER": "Cabecera Menu"
+        },
+        "nav": {
+            "SINGLEVIEW": "Vista Simple"
+        }
+    },
+    "dashboard": {
+        "WELCOME": "Bienvenido"
+    }
+}
